@@ -4,6 +4,7 @@ import { BLOG_DETAILS_QUERY } from '@/query/blog_details.query';
 import BLOG_SLUG_QUERY from '@/query/blog_slug.query';
 import client, { options } from '@/sanity/client';
 import { SanityDocument } from 'next-sanity';
+import { notFound } from 'next/navigation';
 
 type IProps = {
   params: Promise<{
@@ -20,11 +21,11 @@ const BlogDetailsPageComponent = async ({ params }: IProps) => {
     options
   );
   if (!blogDetails) {
-    return <div>Blog post not found</div>;
+    return notFound();
   }
   return (
     <>
-      <BlogDetailPage slug={slug} />
+      <BlogDetailPage slug={slug} blogDetails={blogDetails} />
     </>
   );
 };

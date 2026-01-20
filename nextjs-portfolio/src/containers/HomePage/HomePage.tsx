@@ -5,19 +5,22 @@ import Button from '@/components/Button';
 import Slider from '@/components/Slider';
 import ContactForm from '@/components/ContactForm';
 import BlogListComponent from '@/components/BlogList/BlogListComponent';
-import { BlogPost } from '@/models/BlogCardModel';
+import { BlogPost, ProfileDetails } from '@/models/BlogCardModel';
 import { SanityDocument } from 'next-sanity';
+import { urlForImage } from '@/helpers/sanity.helper';
 
 type IProps = {
-  data: SanityDocument<BlogPost>[];
+  data: SanityDocument<{
+    blogData: BlogPost[];
+    profile: ProfileDetails;
+  }>;
 };
 
 const sliderImages = [
   'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1633356122544-f134324ef6db?w=1200&h=600&fit=crop',
-  'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1660054591552-3c888d8e5319?w=1200&h=600&fit=crop',
+  'https://images.unsplash.com/photo-1554353036-304ec9477b1b?w=1200&h=600&fit=crop',
 ];
-
 const recentProjects = [
   {
     id: 1,
@@ -41,8 +44,27 @@ const recentProjects = [
       'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=400&h=300&fit=crop',
   },
 ];
+const profileImageBlockDiv = {
+  clipPath:
+    'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
+  background:
+    'linear-gradient(135deg, rgba(124,58,237,1) 0%, rgba(99,102,241,1) 100%)',
+  padding: '6px',
+  boxShadow: '0 20px 40px rgba(99,102,241,0.20), 0 6px 12px rgba(0,0,0,0.08)',
+  filter: 'drop-shadow(0 10px 30px rgba(99,102,241,0.18))',
+  borderRadius: '8px', // small rounding to soften edges a bit
+};
+
+const profileImageInnerDiv = {
+  clipPath:
+    'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
+  background: '#ffffff',
+  boxShadow: 'inset 0 6px 18px rgba(0,0,0,0.06)',
+};
 const HomePageContainer = ({ data }: IProps) => {
   console.log('Home Page Data:', data);
+  const { blogData, profile } = data;
+  const profileImageURL = urlForImage(profile?.profileImage);
   return (
     <div className="bg-white">
       {/* Hero Banner Section */}
@@ -55,9 +77,8 @@ const HomePageContainer = ({ data }: IProps) => {
                 Welcome to My Portfolio
               </h1>
               <p className="text-lg md:text-xl text-violet-100 leading-relaxed">
-                I am a creative developer passionate about building beautiful,
-                responsive, and user-friendly web experiences. Let us turn your
-                ideas into reality.
+                {profile?.bio ||
+                  'I am a passionate developer specializing in creating beautiful and functional web applications. Explore my work and get in touch!'}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <Button
@@ -79,14 +100,26 @@ const HomePageContainer = ({ data }: IProps) => {
 
             {/* Right Side - Decorative Image */}
             <div className="hidden md:block">
-              <div className="relative w-full h-96">
-                <Image
-                  src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=500&h=500&fit=crop"
-                  alt="Portfolio showcase"
-                  fill
-                  className="object-cover rounded-lg shadow-2xl"
-                  priority
-                />
+              <div className="relative w-full h-96 flex items-center justify-center transform hover:scale-105 transition-transform duration-300">
+                {/* Outer octagon (acts as border) with shadow */}
+                <div className="w-full h-full" style={profileImageBlockDiv}>
+                  {/* Inner octagon (image container) */}
+                  <div
+                    className="relative w-full h-full overflow-hidden"
+                    style={profileImageInnerDiv}
+                  >
+                    <Image
+                      src={
+                        profileImageURL ||
+                        'https://via.placeholder.com/400x400?text=No+Image'
+                      }
+                      alt="Portfolio showcase"
+                      fill
+                      className="object-cover"
+                      priority
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -173,7 +206,7 @@ const HomePageContainer = ({ data }: IProps) => {
       {/* Blog section */}
       <section className="py-12 md:py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <BlogListComponent listData={data} />
+          <BlogListComponent listData={blogData} />
         </div>
       </section>
 
